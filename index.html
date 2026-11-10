@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Share Your Feedback</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #e8f4f3;
+    margin: 0;
+    padding: 20px 10px;
+    color: #222;
+  }
+
+  .card {
+    max-width: 620px;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+  }
+
+  /* Top part with title and progress */
+  .card-top {
+    background-color: #0e7c7b;
+    color: white;
+    padding: 22px 25px 18px 25px;
+  }
+  .card-top h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+  }
+  .card-top p {
+    margin: 0 0 14px 0;
+    font-size: 14px;
+    color: #cdeeed;
+  }
+  .steps {
+    display: flex;
+    gap: 6px;
+  }
+  .step-dot {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    padding-top: 6px;
+    border-top: 5px solid #5fb3b2;
+    color: #cdeeed;
+  }
+  .step-dot.active {
+    border-top-color: #f5a623;
+    color: white;
+    font-weight: bold;
+  }
+  .step-dot.done {
+    border-top-color: white;
+    color: white;
+  }
+
+  .card-body {
+    padding: 22px 25px 25px 25px;
+  }
+  .card-body h2 {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+  }
+  .hint {
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 12px 0;
+  }
+
+  label {
+    display: block;
+    margin-top: 14px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 14px;
+    border: 1.5px solid #b9c9c8;
+    border-radius: 8px;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #0e7c7b;
+  }
+  .error {
+    color: #d93a3a;
+    font-size: 13px;
+    min-height: 4px;
+  }
+
+  /* Emoji rating */
+  .emoji-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .emoji-btn {
+    flex: 1;
+    background-color: #f2f6f6;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 8px 0 4px 0;
+    font-size: 34px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .emoji-btn small {
+    display: block;
+    font-size: 11px;
+    color: #555;
+    margin-top: 2px;
+  }
+  .emoji-btn.selected {
+    border-color: #0e7c7b;
+    background-color: #dff2f1;
+  }
+
+  /* Star rating */
+  .star-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .star-line span.name {
+    font-size: 15px;
+  }
+  .stars {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .stars span.on {
+    color: #f5a623;
+  }
+
+  /* Check boxes and radio buttons */
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .options label {
+    margin: 0;
+    font-weight: normal;
+    background-color: #f2f6f6;
+    border: 1.5px solid #cfdcdb;
+    border-radius: 20px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .options label input {
+    margin-right: 5px;
+  }
+
+  /* Recommend score 0 to 10 */
+  .nps-row {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .nps-btn {
+    padding: 9px 0;
+    border: 1.5px solid #b9c9c8;
+    background-color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .nps-btn.selected {
+    background-color: #0e7c7b;
+    border-color: #0e7c7b;
+    color: white;
+    font-weight: bold;
+  }
+  .nps-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .counter {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+  }
+
+  /* Review box */
+  .review-box {
+    background-color: #f2f6f6;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-top: 10px;
+  }
+  .review-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 7px 0;
+    border-bottom: 1px solid #dde7e6;
+    font-size: 14px;
+  }
+  .review-line:last-child {
+    border-bottom: none;
+  }
+  .review-line .key {
+    color: #555;
+    flex-shrink: 0;
+  }
+  .review-line .value {
+    font-weight: bold;
+    text-align: right;
+    word-break: break-word;
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .next-btn, .submit-btn {
+    background-color: #0e7c7b;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .next-btn:hover, .submit-btn:hover {
+    background-color: #0a5f5e;
+  }
+  .submit-btn {
+    background-color: #e2412f;
+  }
+  .back-btn {
+    background-color: #e3e9e9;
+    color: #333;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  /* Thank you screen */
+  .thanks {
+    text-align: center;
+    padding: 30px 10px;
+  }
+  .tick {
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    font-size: 44px;
+    color: white;
+    background-color: #0e7c7b;
+    border-radius: 50%;
+    margin: 0 auto 14px auto;
+  }
+  .ref-box {
+    display: inline-block;
+    background-color: #f2f6f6;
+    border: 1.5px dashed #0e7c7b;
+    border-radius: 8px;
+    padding: 8px 18px;
+    margin: 10px 0 18px 0;
+    font-size: 16px;
+  }
+
+  @media (max-width: 500px) {
+    .emoji-btn {
+      font-size: 26px;
+    }
+    .stars {
+      font-size: 26px;
+    }
+    .card-top, .card-body {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .step-dot {
+      font-size: 11px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="card-top">
+    <h1>We value your feedback</h1>
+    <p>It takes less than 2 minutes.</p>
+    <div class="steps" id="stepBar">
+      <div class="step-dot active" id="dot1">About You</div>
+      <div class="step-dot" id="dot2">Rate Us</div>
+      <div class="step-dot" id="dot3">Your Thoughts</div>
+      <div class="step-dot" id="dot4">Review</div>
+    </div>
+  </div>
+
+  <div class="card-body">
+
+    <!-- STEP 1 -->
+    <div id="step1">
+      <h2>Tell us about you</h2>
+      <p class="hint">So we know who the feedback is from.</p>
+
+      <label>Full Name</label>
+      <input type="text" id="fbName">
+      <div class="error" id="errName"></div>
+
+      <label>Email</label>
+      <input type="text" id="fbEmail">
+      <div class="error" id="errEmail"></div>
+
+      <label>What is your feedback about?</label>
+      <select id="fbTopic">
+        <option value="Website">Website</option>
+        <option value="Product">Product</option>
+        <option value="Customer Support">Customer Support</option>
+        <option value="Delivery">Delivery</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <div class="btn-row">
+        <button class="next-btn" onclick="goNext()">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" style="display:none;">
+      <h2>How was your experience?</h2>
+      <p class="hint">Click an emoji, then rate each area.</p>
+
+      <label>Overall experience</label>
+      <div class="emoji-row" id="emojiRow">
+        <button class="emoji-btn" onclick="setEmoji(1)">&#128544;<small>Very bad</small></button>
+        <button class="emoji-btn" onclick="setEmoji(2)">&#128577;<small>Bad</small></button>
+        <button class="emoji-btn" onclick="setEmoji(3)">&#128528;<small>Okay</small></button>
+        <button class="emoji-btn" onclick="setEmoji(4)">&#128578;<small>Good</small></button>
+        <button class="emoji-btn" onclick="setEmoji(5)">&#128525;<small>Great</small></button>
+      </div>
+      <div class="error" id="errEmoji"></div>
+
+      <label>Rate each area</label>
+      <div class="star-line">
+        <span class="name">Ease of use</span>
+        <span class="stars" id="stars-ease">
+          <span onclick="setStar('ease',1)">&#9733;</span><span onclick="setStar('ease',2)">&#9733;</span><span onclick="setStar('ease',3)">&#9733;</span><span onclick="setStar('ease',4)">&#9733;</span><span onclick="setStar('ease',5)">&#9733;</span>
+        </span>
+      </div>
+      <div class="star-line">
+        <span class="name">Design</span>
+        <span class="stars" id="stars-design">
+          <span onclick="setStar('design',1)">&#9733;</span><span onclick="setStar('design',2)">&#9733;</span><span onclick="setStar('design',3)">&#9733;</span><span onclick="setStar('design',4)">&#9733;</span><span onclick="setStar('design',5)">&#9733;</span>
+        </span>
+      </div>
+      <div class="star-line">
+        <span class="name">Speed</span>
+        <span class="stars" id="stars-speed">
+          <span onclick="setStar('speed',1)">&#9733;</span><span onclick="setStar('speed',2)">&#9733;</span><span onclick="setStar('speed',3)">&#9733;</span><span onclick="setStar('speed',4)">&#9733;</span><span onclick="setStar('speed',5)">&#9733;</span>
+        </span>
+      </div>
+      <div class="error" id="errStars"></div>
+
+      <div class="btn-row">
+        <button class="back-btn" onclick="goBack()">Back</button>
+        <button class="next-btn" onclick="goNext()">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" style="display:none;">
+      <h2>Tell us more</h2>
+      <p class="hint">Your comments help us improve.</p>
+
+      <label>What did you like? (choose any)</label>
+      <div class="options">
+        <label><input type="checkbox" name="liked" value="Easy to use"> Easy to use</label>
+        <label><input type="checkbox" name="liked" value="Good design"> Good design</label>
+        <label><input type="checkbox" name="liked" value="Fast"> Fast</label>
+        <label><input type="checkbox" name="liked" value="Good prices"> Good prices</label>
+        <label><input type="checkbox" name="liked" value="Helpful support"> Helpful support</label>
+      </div>
+
+      <label>How likely are you to recommend us to a friend?</label>
+      <div class="nps-row" id="npsRow"></div>
+      <div class="nps-labels"><span>Not likely</span><span>Very likely</span></div>
+      <div class="error" id="errNps"></div>
+
+      <label>Your comments</label>
+      <textarea id="fbComment" rows="4" maxlength="300" oninput="updateCount()"></textarea>
+      <div class="counter"><span id="charCount">0</span> / 300</div>
+      <div class="error" id="errComment"></div>
+
+      <label>May we contact you about your feedback?</label>
+      <div class="options">
+        <label><input type="radio" name="contact" value="Yes" checked> Yes</label>
+        <label><input type="radio" name="contact" value="No"> No</label>
+      </div>
+
+      <div class="btn-row">
+        <button class="back-btn" onclick="goBack()">Back</button>
+        <button class="next-btn" onclick="goNext()">Review</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4" style="display:none;">
+      <h2>Check your answers</h2>
+      <p class="hint">Everything look right? Then submit.</p>
+      <div class="review-box" id="reviewBox"></div>
+
+      <div class="btn-row">
+        <button class="back-btn" onclick="goBack()">Back</button>
+        <button class="submit-btn" onclick="submitForm()">Submit Feedback</button>
+      </div>
+    </div>
+
+    <!-- THANK YOU -->
+    <div id="thanks" class="thanks" style="display:none;">
+      <div class="tick">&#10003;</div>
+      <h2>Thank you!</h2>
+      <p id="thanksText"></p>
+      <div class="ref-box">Reference: <b id="refNumber"></b></div><br>
+      <button class="next-btn" style="margin-left:0;" onclick="startAgain()">Send Another Feedback</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var currentStep = 1;
+  var overall = 0;
+  var stars = { ease: 0, design: 0, speed: 0 };
+  var nps = -1;
+
+  var emojiNames = ["", "Very bad", "Bad", "Okay", "Good", "Great"];
+  var emojiIcons = ["", "😠", "🙁", "😐", "🙂", "😍"];
+
+  // ---------- Small helper functions ----------
+  function safeText(text) {
+    text = String(text);
+    text = text.replace(/&/g, "&amp;");
+    text = text.replace(/</g, "&lt;");
+    text = text.replace(/>/g, "&gt;");
+    return text;
+  }
+
+  function clearErrors() {
+    var ids = ["errName", "errEmail", "errEmoji", "errStars", "errNps", "errComment"];
+    for (var i = 0; i < ids.length; i++) {
+      document.getElementById(ids[i]).innerHTML = "";
+    }
+  }
+
+  // ---------- Show a step ----------
+  function showStep(n) {
+    currentStep = n;
+    for (var i = 1; i <= 4; i++) {
+      document.getElementById("step" + i).style.display = "none";
+      var dot = document.getElementById("dot" + i);
+      if (i < n) {
+        dot.className = "step-dot done";
+      } else if (i == n) {
+        dot.className = "step-dot active";
+      } else {
+        dot.className = "step-dot";
+      }
+    }
+    document.getElementById("step" + n).style.display = "block";
+    if (n == 4) {
+      buildReview();
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function goNext() {
+    if (validateStep(currentStep) == true) {
+      showStep(currentStep + 1);
+    }
+  }
+
+  function goBack() {
+    showStep(currentStep - 1);
+  }
+
+  // ---------- Check each step ----------
+  function validateStep(n) {
+    var ok = true;
+    clearErrors();
+
+    if (n == 1) {
+      var name = document.getElementById("fbName").value;
+      var email = document.getElementById("fbEmail").value;
+      if (name.length < 2) {
+        document.getElementById("errName").innerHTML = "Please enter your name.";
+        ok = false;
+      }
+      if (email.indexOf("@") < 1 || email.lastIndexOf(".") < email.indexOf("@") + 2 || email.length < 6) {
+        document.getElementById("errEmail").innerHTML = "Please enter a valid email.";
+        ok = false;
+      }
+    }
+
+    if (n == 2) {
+      if (overall == 0) {
+        document.getElementById("errEmoji").innerHTML = "Please choose how your experience was.";
+        ok = false;
+      }
+      if (stars.ease == 0 || stars.design == 0 || stars.speed == 0) {
+        document.getElementById("errStars").innerHTML = "Please rate all three areas.";
+        ok = false;
+      }
+    }
+
+    if (n == 3) {
+      var comment = document.getElementById("fbComment").value;
+      if (nps == -1) {
+        document.getElementById("errNps").innerHTML = "Please choose a score from 0 to 10.";
+        ok = false;
+      }
+      if (comment.length < 10) {
+        document.getElementById("errComment").innerHTML = "Please write at least 10 characters.";
+        ok = false;
+      }
+    }
+
+    return ok;
+  }
+
+  // ---------- Step 2: emoji and stars ----------
+  function setEmoji(n) {
+    overall = n;
+    var buttons = document.getElementById("emojiRow").getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; i++) {
+      if (i == n - 1) {
+        buttons[i].className = "emoji-btn selected";
+      } else {
+        buttons[i].className = "emoji-btn";
+      }
+    }
+  }
+
+  function setStar(area, n) {
+    stars[area] = n;
+    var spans = document.getElementById("stars-" + area).getElementsByTagName("span");
+    for (var i = 0; i < spans.length; i++) {
+      if (i < n) {
+        spans[i].className = "on";
+      } else {
+        spans[i].className = "";
+      }
+    }
+  }
+
+  // ---------- Step 3: score and counter ----------
+  function buildNps() {
+    var html = "";
+    for (var i = 0; i <= 10; i++) {
+      html += '<button class="nps-btn" onclick="setNps(' + i + ')">' + i + "</button>";
+    }
+    document.getElementById("npsRow").innerHTML = html;
+  }
+
+  function setNps(n) {
+    nps = n;
+    var buttons = document.getElementById("npsRow").getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; i++) {
+      if (i == n) {
+        buttons[i].className = "nps-btn selected";
+      } else {
+        buttons[i].className = "nps-btn";
+      }
+    }
+  }
+
+  function updateCount() {
+    document.getElementById("charCount").innerHTML = document.getElementById("fbComment").value.length;
+  }
+
+  function getLiked() {
+    var boxes = document.getElementsByName("liked");
+    var list = [];
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].checked) {
+        list.push(boxes[i].value);
+      }
+    }
+    return list;
+  }
+
+  function getContact() {
+    var radios = document.getElementsByName("contact");
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) {
+        return radios[i].value;
+      }
+    }
+    return "Yes";
+  }
+
+  // ---------- Step 4: review ----------
+  function line(key, value) {
+    return '<div class="review-line"><span class="key">' + key + '</span><span class="value">' + value + "</span></div>";
+  }
+
+  function buildReview() {
+    var liked = getLiked();
+    var likedText = "None selected";
+    if (liked.length > 0) {
+      likedText = liked.join(", ");
+    }
+
+    var html = "";
+    html += line("Name", safeText(document.getElementById("fbName").value));
+    html += line("Email", safeText(document.getElementById("fbEmail").value));
+    html += line("Topic", document.getElementById("fbTopic").value);
+    html += line("Overall", emojiIcons[overall] + " " + emojiNames[overall]);
+    html += line("Ease of use", stars.ease + " / 5");
+    html += line("Design", stars.design + " / 5");
+    html += line("Speed", stars.speed + " / 5");
+    html += line("You liked", likedText);
+    html += line("Recommend score", nps + " / 10");
+    html += line("Comments", safeText(document.getElementById("fbComment").value));
+    html += line("Can we contact you?", getContact());
+    document.getElementById("reviewBox").innerHTML = html;
+  }
+
+  // ---------- Submit ----------
+  function submitForm() {
+    var reference = "FB" + Math.floor(100000 + Math.random() * 900000);
+    var name
